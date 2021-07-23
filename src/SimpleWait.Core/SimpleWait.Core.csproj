@@ -1,7 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>Wait based on selenium but without dependency</Description>
+    <Authors>taja</Authors>
+    <Company></Company>
+    <Product>SimpleWait</Product>
+    <RepositoryUrl>https://github.com/taja01/SimpleWait</RepositoryUrl>
+    <PackageTags>Wait Waiter</PackageTags>
   </PropertyGroup>
 
 </Project>
