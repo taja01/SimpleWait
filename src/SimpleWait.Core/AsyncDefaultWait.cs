@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SimpleWait.Core
 {
-    internal class DefaultWait<T> : IWait<T>
+    internal class AsyncDefaultWait<T> : IAsyncWait<T>
     {
-        private T input;
-        private IClock clock;
+        protected T input;
+        protected IClock clock;
 
-        private TimeSpan timeout = DefaultSleepTimeout;
-        private TimeSpan sleepInterval = DefaultSleepTimeout;
-        private string message = string.Empty;
+        protected TimeSpan timeout = DefaultSleepTimeout;
+        protected TimeSpan sleepInterval = DefaultSleepTimeout;
+        protected string message = string.Empty;
 
         private List<Type> ignoredExceptions = new List<Type>();
 
@@ -21,7 +22,7 @@ namespace SimpleWait.Core
         /// Initializes a new instance of the <see cref="DefaultWait&lt;T&gt;"/> class.
         /// </summary>
         /// <param name="input">The input value to pass to the evaluated conditions.</param>
-        public DefaultWait(T input)
+        public AsyncDefaultWait(T input)
             : this(input, new SystemClock())
         {
         }
@@ -31,7 +32,7 @@ namespace SimpleWait.Core
         /// </summary>
         /// <param name="input">The input value to pass to the evaluated conditions.</param>
         /// <param name="clock">The clock to use when measuring the timeout.</param>
-        public DefaultWait(T input, IClock clock)
+        public AsyncDefaultWait(T input, IClock clock)
         {
             if (input == null)
             {
@@ -102,41 +103,22 @@ namespace SimpleWait.Core
             this.ignoredExceptions.AddRange(exceptionTypes);
         }
 
-        /// <summary>
-        /// Repeatedly applies this instance's input value to the given function until one of the following
-        /// occurs:
-        /// <para>
-        /// <list type="bullet">
-        /// <item>the function returns neither null nor false</item>
-        /// <item>the function throws an exception that is not in the list of ignored exception types</item>
-        /// <item>the timeout expires</item>
-        /// </list>
-        /// </para>
-        /// </summary>
-        /// <typeparam name="TResult">The delegate's expected return type.</typeparam>
-        /// <param name="condition">A delegate taking an object of type T as its parameter, and returning a TResult.</param>
-        /// <returns>The delegate's return value.</returns>
-        public virtual TResult Until<TResult>(Func<T, TResult> condition)
+        protected virtual void ThrowTimeoutException(string exceptionMessage, Exception lastException)
         {
-            return Until(condition, CancellationToken.None);
+            throw new TimeoutException(exceptionMessage, lastException);
         }
 
-        /// <summary>
-        /// Repeatedly applies this instance's input value to the given function until one of the following
-        /// occurs:
-        /// <para>
-        /// <list type="bullet">
-        /// <item>the function returns neither null nor false</item>
-        /// <item>the function throws an exception that is not in the list of ignored exception types</item>
-        /// <item>the timeout expires</item>
-        /// </list>
-        /// </para>
-        /// </summary>
-        /// <typeparam name="TResult">The delegate's expected return type.</typeparam>
-        /// <param name="condition">A delegate taking an object of type T as its parameter, and returning a TResult.</param>
-        /// <param name="token">A cancellation token that can be used to cancel the wait.</param>
-        /// <returns>The delegate's return value.</returns>
-        public virtual TResult Until<TResult>(Func<T, TResult> condition, CancellationToken token)
+        protected bool IsIgnoredException(Exception exception)
+        {
+            return this.ignoredExceptions.Any(type => type.IsAssignableFrom(exception.GetType()));
+        }
+
+        public virtual async Task<TResult> Until<TResult>(Func<T, TResult> condition)
+        {
+            return await Until(condition, CancellationToken.None);
+        }
+
+        public virtual async Task<TResult> Until<TResult>(Func<T, TResult> condition, CancellationToken token)
         {
             if (condition == null)
             {
@@ -197,25 +179,8 @@ namespace SimpleWait.Core
                     this.ThrowTimeoutException(timeoutMessage, lastException);
                 }
 
-                Thread.Sleep(this.sleepInterval);
+                await Task.Delay(this.sleepInterval);
             }
-        }
-
-        /// <summary>
-        /// Throws a <see cref="WebDriverTimeoutException"/> with the given message.
-        /// </summary>
-        /// <param name="exceptionMessage">The message of the exception.</param>
-        /// <param name="lastException">The last exception thrown by the condition.</param>
-        /// <remarks>This method may be overridden to throw an exception that is
-        /// idiomatic for a particular test infrastructure.</remarks>
-        protected virtual void ThrowTimeoutException(string exceptionMessage, Exception lastException)
-        {
-            throw new TimeoutException(exceptionMessage, lastException);
-        }
-
-        protected bool IsIgnoredException(Exception exception)
-        {
-            return this.ignoredExceptions.Any(type => type.IsAssignableFrom(exception.GetType()));
         }
     }
 }
