@@ -166,10 +166,7 @@ namespace SimpleWait.Core
                         }
                     }
                 }
-                catch (TargetInvocationException)
-                {
-                    //TODO
-                }
+                catch (TargetInvocationException) { }
                 catch (Exception ex)
                 {
                     if (!this.IsIgnoredException(ex))
