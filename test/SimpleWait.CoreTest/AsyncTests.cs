@@ -10,6 +10,7 @@ namespace SimpleWait.CoreTest
     public class AsyncTests
     {
         private IRestClient client;
+
         [SetUp]
         public void Setup()
         {
@@ -21,11 +22,13 @@ namespace SimpleWait.CoreTest
         {
             var request = new RestRequest("pet/0", Method.Get);
 
-            Assert.ThrowsAsync<TimeoutException>(() => AsyncWait.Initialize().Until(() =>
+            Assert.ThrowsAsync<TimeoutException>(() => AsyncWait.Initialize().Until(async () =>
             {
-                var response = client.ExecuteAsync(request); if (response.Result.StatusCode != System.Net.HttpStatusCode.NotFound)
+                var response = await client.ExecuteAsync(request);
+
+                if (response.StatusCode != System.Net.HttpStatusCode.NotFound)
                 {
-                    return response.Result;
+                    return response;
                 }
                 else return null;
             }));
