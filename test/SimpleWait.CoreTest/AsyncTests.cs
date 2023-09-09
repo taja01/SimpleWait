@@ -19,7 +19,7 @@ namespace SimpleWait.CoreTest
         [Test]
         public async Task TimeoutTest()
         {
-            var request = new RestRequest("pet/0", Method.GET);
+            var request = new RestRequest("pet/0", Method.Get);
 
             Assert.ThrowsAsync<TimeoutException>(() => AsyncWait.Initialize().Until(() =>
             {
