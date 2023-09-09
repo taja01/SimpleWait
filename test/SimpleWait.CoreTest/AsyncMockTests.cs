@@ -219,7 +219,7 @@ namespace SimpleWait.CoreTest
         }
 
         [Test]
-        public async Task Test75()
+        public async Task Test7()
         {
             var mockService = new Mock<IMyService>();
             mockService
