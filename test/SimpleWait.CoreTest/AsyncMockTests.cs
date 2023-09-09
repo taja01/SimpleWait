@@ -245,6 +245,35 @@ namespace SimpleWait.CoreTest
 
             Assert.AreEqual(true, result.Result);
         }
+
+        [Test]
+        public async Task Test8_WithException()
+        {
+            var mockService = new Mock<IMyService>();
+            mockService
+                .SetupSequence(m => m.IsAliveAsync())
+                .ThrowsAsync(new System.Net.WebException())
+                .ReturnsAsync(true);
+
+            var result = await AsyncWait.Initialize()
+                .Timeout(TimeSpan.FromHours(1))
+                .IgnoreExceptionTypes(typeof(System.Net.WebException))
+                .Until(async () =>
+                {
+                    var r = await mockService.Object.IsAliveAsync();
+
+                    if (r.HasValue)
+                    {
+                        return r;
+                    }
+                    else { return false; }
+                });
+
+
+            mockService.Verify(m => m.IsAliveAsync(), Times.Exactly(2));
+
+            Assert.AreEqual(true, result.Result);
+        }
     }
 
     public class MyService : IMyService

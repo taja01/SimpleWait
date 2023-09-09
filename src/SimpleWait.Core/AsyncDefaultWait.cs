@@ -144,25 +144,31 @@ namespace SimpleWait.Core
                 {
                     var conditionResult = condition(this.input);
 
-                    PropertyInfo[] properties = resultType.GetProperties();
-
-                    var v = properties.First().GetValue(conditionResult);
-
-                    if (resultType == typeof(Task<bool?>))
+                    if (conditionResult != null)
                     {
-                        var boolResult = conditionResult as Task<bool?>;
+                        PropertyInfo[] properties = resultType.GetProperties();
 
-                        var b = await boolResult;
-                        if (b.HasValue && b.Value)
+                        var v = properties.First().GetValue(conditionResult);
+
+                        if (resultType == typeof(Task<bool?>))
+                        {
+                            var boolResult = conditionResult as Task<bool?>;
+
+                            var b = await boolResult;
+                            if (b.HasValue && b.Value)
+                            {
+                                return conditionResult;
+                            }
+                        }
+                        else
                         {
                             return conditionResult;
                         }
                     }
-                    else if (v != null)
-                    {
-                        return conditionResult;
-                    }
-
+                }
+                catch (TargetInvocationException)
+                {
+                    //TODO
                 }
                 catch (Exception ex)
                 {
