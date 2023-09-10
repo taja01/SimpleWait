@@ -10,7 +10,7 @@ namespace SimpleWait.CoreTest
     internal class AsyncMockTests
     {
         [Test]
-        public async Task Test()
+        public async Task NullableIntegerTest()
         {
             var mockService = new Mock<IMyService>();
             mockService
@@ -20,7 +20,7 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync(4);
 
             var result = await AsyncWait.Initialize()
-                .Until(async () =>
+                .UntilAsync(async () =>
                 {
                     var r = await mockService.Object.GetMagicNumberAsync();
 
@@ -35,41 +35,41 @@ namespace SimpleWait.CoreTest
 
             mockService.Verify(m => m.GetMagicNumberAsync(), Times.Exactly(3));
 
-            Assert.AreEqual(4, result.Result);
+            Assert.AreEqual(4, result);
 
         }
 
         [Test]
-        public async Task Test1()
+        public async Task IntegerTest()
         {
             var mockService = new Mock<IMyService>();
             mockService
-                .SetupSequence(m => m.GetMagicNumberAsync())
+                .SetupSequence(m => m.GetFixMagicNumberAsync())
                 .ReturnsAsync(2)
                 .ReturnsAsync(4);
 
             var result = await AsyncWait.Initialize()
-                .Until(async () =>
+                .UntilAsync(async () =>
                 {
-                    var r = await mockService.Object.GetMagicNumberAsync();
+                    var r = await mockService.Object.GetFixMagicNumberAsync();
 
-                    if (r.HasValue && r.Value == 4)
+                    if (r == 4)
                     {
-                        return r.Value;
+                        return r;
                     }
 
                     return (int?)null;
                 });
 
 
-            mockService.Verify(m => m.GetMagicNumberAsync(), Times.Exactly(2));
+            mockService.Verify(m => m.GetFixMagicNumberAsync(), Times.Exactly(2));
 
-            Assert.AreEqual(4, result.Result);
+            Assert.AreEqual(4, result);
 
         }
 
         [Test]
-        public async Task Test2()
+        public async Task NullableStringTest()
         {
             var mockService = new Mock<IMyService>();
             mockService
@@ -78,7 +78,7 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync("42");
 
             var result = await AsyncWait.Initialize()
-                .Until(async () =>
+                .UntilAsync(async () =>
                 {
                     var r = await mockService.Object.GetMagicString();
 
@@ -93,23 +93,23 @@ namespace SimpleWait.CoreTest
 
             mockService.Verify(m => m.GetMagicString(), Times.Exactly(2));
 
-            Assert.AreEqual("42", result.Result);
+            Assert.AreEqual("42", result);
         }
 
         [Test]
-        public async Task Test3()
+        public async Task StringTest()
         {
             var mockService = new Mock<IMyService>();
             mockService
-                .SetupSequence(m => m.GetMagicString())
+                .SetupSequence(m => m.GetFixMagicString())
                 .ReturnsAsync((string)null)
                 .ReturnsAsync("")
                 .ReturnsAsync("42");
 
-            var result = await AsyncWait.Initialize()
-                .Until(async () =>
+            var result = await AsyncWait.Initialize().Timeout(System.TimeSpan.FromHours(1))
+                .UntilAsync(async () =>
                 {
-                    var r = await mockService.Object.GetMagicString();
+                    var r = await mockService.Object.GetFixMagicString();
 
                     if (r != null && r == "42")
                     {
@@ -120,13 +120,13 @@ namespace SimpleWait.CoreTest
                 });
 
 
-            mockService.Verify(m => m.GetMagicString(), Times.Exactly(3));
+            mockService.Verify(m => m.GetFixMagicString(), Times.Exactly(3));
 
-            Assert.AreEqual("42", result.Result);
+            Assert.AreEqual("42", result);
         }
 
         [Test]
-        public async Task Test4()
+        public async Task CustomObjectTest()
         {
             var s = new Response();
             var mockService = new Mock<IMyService>();
@@ -136,7 +136,7 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync(s);
 
             var result = await AsyncWait.Initialize()
-                .Until(async () =>
+                .UntilAsync(async () =>
                 {
                     var r = await mockService.Object.GetResponse();
 
@@ -151,42 +151,15 @@ namespace SimpleWait.CoreTest
 
             mockService.Verify(m => m.GetResponse(), Times.Exactly(2));
 
-            Assert.AreEqual(s, result.Result);
+            Assert.AreEqual(s, result);
         }
 
-        [Test]
-        public async Task Test5()
-        {
-            var s = new Response();
-            var mockService = new Mock<IMyService>();
-            mockService
-                .SetupSequence(m => m.GetResponse())
-                .ReturnsAsync(default(Response))
-                .ReturnsAsync(s);
 
-            var result = await AsyncWait.Initialize()
-                .Until(async () =>
-                {
-                    var r = await mockService.Object.GetResponse();
-
-                    if (r != null)
-                    {
-                        return r;
-                    }
-
-                    return null;
-                });
-
-
-            mockService.Verify(m => m.GetResponse(), Times.Exactly(2));
-
-            Assert.AreEqual(s, result.Result);
-        }
 
         [Test]
-        public async Task Test6()
+        public async Task CustomObjectWithAdditionalTest()
         {
-            var response1 = new Response();
+            var response1 = default(Response);
             var response2 = new Response(3);
             var response3 = new Response(10);
 
@@ -200,7 +173,7 @@ namespace SimpleWait.CoreTest
 
             var result = await AsyncWait.Initialize()
                 .Timeout(TimeSpan.FromHours(1))
-                .Until(async () =>
+                .UntilAsync(async () =>
                 {
                     var r = await mockService.Object.GetResponse();
 
@@ -215,21 +188,53 @@ namespace SimpleWait.CoreTest
 
             mockService.Verify(m => m.GetResponse(), Times.Exactly(4));
 
-            Assert.AreEqual(response3, result.Result);
+            Assert.AreEqual(response3, result);
         }
 
         [Test]
-        public async Task Test7()
+        public async Task BooleanTest()
         {
             var mockService = new Mock<IMyService>();
             mockService
-                .SetupSequence(m => m.IsAliveAsync())
+                .SetupSequence(m => m.IsFixAliveAsync())
                 .ReturnsAsync(false)
                 .ReturnsAsync(true);
 
             var result = await AsyncWait.Initialize()
                 .Timeout(TimeSpan.FromHours(1))
-                .Until(async () =>
+                .UntilAsync(async () =>
+                {
+                    var r = await mockService.Object.IsFixAliveAsync();
+
+                    if (r)
+                    {
+                        return r;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                });
+
+
+            mockService.Verify(m => m.IsFixAliveAsync(), Times.Exactly(2));
+
+            Assert.AreEqual(true, result);
+        }
+
+        [Test]
+        public async Task NullableBooleanTest()
+        {
+            var mockService = new Mock<IMyService>();
+            mockService
+                .SetupSequence(m => m.IsAliveAsync())
+                .ReturnsAsync((bool?)null)
+                .ReturnsAsync(false)
+                .ReturnsAsync(true);
+
+            var result = await AsyncWait.Initialize()
+                .Timeout(TimeSpan.FromHours(1))
+                .UntilAsync(async () =>
                 {
                     var r = await mockService.Object.IsAliveAsync();
 
@@ -237,17 +242,20 @@ namespace SimpleWait.CoreTest
                     {
                         return r;
                     }
-                    else { return false; }
+                    else
+                    {
+                        return false;
+                    }
                 });
 
 
-            mockService.Verify(m => m.IsAliveAsync(), Times.Exactly(2));
+            mockService.Verify(m => m.IsAliveAsync(), Times.Exactly(3));
 
-            Assert.AreEqual(true, result.Result);
+            Assert.AreEqual(true, result);
         }
 
         [Test]
-        public async Task Test8_WithException()
+        public async Task ExceptionTest()
         {
             var mockService = new Mock<IMyService>();
             mockService
@@ -258,7 +266,7 @@ namespace SimpleWait.CoreTest
             var result = await AsyncWait.Initialize()
                 .Timeout(TimeSpan.FromHours(1))
                 .IgnoreExceptionTypes(typeof(System.Net.WebException))
-                .Until(async () =>
+                .UntilAsync(async () =>
                 {
                     var r = await mockService.Object.IsAliveAsync();
 
@@ -272,7 +280,7 @@ namespace SimpleWait.CoreTest
 
             mockService.Verify(m => m.IsAliveAsync(), Times.Exactly(2));
 
-            Assert.AreEqual(true, result.Result);
+            Assert.AreEqual(true, result);
         }
     }
 

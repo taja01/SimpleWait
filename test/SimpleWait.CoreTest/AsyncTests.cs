@@ -22,7 +22,7 @@ namespace SimpleWait.CoreTest
         {
             var request = new RestRequest("pet/0", Method.Get);
 
-            Assert.ThrowsAsync<TimeoutException>(() => AsyncWait.Initialize().Until(async () =>
+            Assert.ThrowsAsync<TimeoutException>(async () => await AsyncWait.Initialize().UntilAsync(async () =>
             {
                 var response = await client.ExecuteAsync(request);
 

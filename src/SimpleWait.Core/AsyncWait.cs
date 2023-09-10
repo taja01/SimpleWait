@@ -52,25 +52,11 @@ namespace SimpleWait.Core
             return this;
         }
 
-        public async Task Until(Func<bool> condition)
+        public async Task<TResult> UntilAsync<TResult>(Func<Task<TResult>> condition)
         {
-            bool Func(bool b) => condition();
             try
             {
-                _ = await wait.UntilAsync(Func);
-            }
-            catch (TimeoutException e) when (this.exceptionType != DefaultException)
-            {
-                throw (Exception)Activator.CreateInstance(this.exceptionType, e.Message);
-            }
-        }
-
-        public async Task<TResult> Until<TResult>(Func<TResult> condition)
-        {
-            TResult Func(bool b) => condition();
-            try
-            {
-                return await wait.UntilAsync(Func);
+                return await wait.UntilAsync(condition);
             }
             catch (TimeoutException e) when (this.exceptionType != DefaultException)
             {

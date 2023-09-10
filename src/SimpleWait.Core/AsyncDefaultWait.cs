@@ -114,24 +114,16 @@ namespace SimpleWait.Core
             return this.ignoredExceptions.Any(type => type.IsAssignableFrom(exception.GetType()));
         }
 
-        public virtual async Task<TResult> UntilAsync<TResult>(Func<T, TResult> condition)
+        public virtual async Task<TResult> UntilAsync<TResult>(Func<Task<TResult>> condition)
         {
             return await UntilAsync(condition, CancellationToken.None);
         }
 
-        public virtual async Task<TResult> UntilAsync<TResult>(Func<T, TResult> condition, CancellationToken token)
+        public virtual async Task<TResult> UntilAsync<TResult>(Func<Task<TResult>> condition, CancellationToken token)
         {
             if (condition == null)
             {
                 throw new ArgumentNullException("condition", "condition cannot be null");
-            }
-
-            var resultType = typeof(TResult);
-
-
-            if (resultType.BaseType.FullName != "System.Threading.Tasks.Task")
-            {
-                throw new ArgumentException("Can only wait on an object or boolean response, tried to use type: " + resultType.ToString(), "condition");
             }
 
             Exception lastException = null;
@@ -142,27 +134,23 @@ namespace SimpleWait.Core
 
                 try
                 {
-                    var conditionResult = condition(this.input);
+                    var result = await Task.Run(condition);
 
-                    if (conditionResult != null)
+                    if (result != null)
                     {
-                        PropertyInfo[] properties = resultType.GetProperties();
+                        var resultType = typeof(TResult);
 
-                        var v = properties.First().GetValue(conditionResult);
-
-                        if (resultType == typeof(Task<bool?>))
+                        if (resultType == typeof(bool?) || resultType == typeof(bool))
                         {
-                            var boolResult = conditionResult as Task<bool?>;
-
-                            var b = await boolResult;
-                            if (b.HasValue && b.Value)
+                            var boolResult = result as bool?;
+                            if (boolResult.HasValue && boolResult.Value)
                             {
-                                return conditionResult;
+                                return result;
                             }
                         }
-                        else if (v != null)
+                        else
                         {
-                            return conditionResult;
+                            return result;
                         }
                     }
                 }
