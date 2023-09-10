@@ -154,8 +154,6 @@ namespace SimpleWait.CoreTest
             Assert.AreEqual(s, result);
         }
 
-
-
         [Test]
         public async Task CustomObjectWithAdditionalTest()
         {
