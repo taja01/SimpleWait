@@ -160,13 +160,15 @@ namespace SimpleWait.Core
                                 return conditionResult;
                             }
                         }
-                        else
+                        else if (v != null)
                         {
                             return conditionResult;
                         }
                     }
                 }
-                catch (TargetInvocationException) { }
+                catch (TargetInvocationException e)
+                {
+                }
                 catch (Exception ex)
                 {
                     if (!this.IsIgnoredException(ex))
