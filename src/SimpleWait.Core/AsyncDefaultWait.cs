@@ -154,7 +154,7 @@ namespace SimpleWait.Core
                         }
                     }
                 }
-                catch (TargetInvocationException e)
+                catch (TargetInvocationException)
                 {
                 }
                 catch (Exception ex)

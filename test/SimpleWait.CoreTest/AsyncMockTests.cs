@@ -74,7 +74,7 @@ namespace SimpleWait.CoreTest
             var mockService = new Mock<IMyService>();
             mockService
                 .SetupSequence(m => m.GetMagicString())
-                .ReturnsAsync((string?)null)
+                .ReturnsAsync((string)null)
                 .ReturnsAsync("42");
 
             var result = await AsyncWait.Initialize()
@@ -87,7 +87,7 @@ namespace SimpleWait.CoreTest
                         return r;
                     }
 
-                    return (string?)null;
+                    return null;
                 });
 
 
@@ -294,22 +294,22 @@ namespace SimpleWait.CoreTest
             throw new NotImplementedException();
         }
 
-        public async Task<int?> GetMagicNumberAsync()
+        public Task<int?> GetMagicNumberAsync()
         {
             throw new NotImplementedException();
         }
 
-        public async Task<string?> GetMagicString()
+        public Task<string> GetMagicString()
         {
             throw new NotImplementedException();
         }
 
-        public async Task<Response?> GetResponse()
+        public Task<Response> GetResponse()
         {
             throw new NotImplementedException();
         }
 
-        public async Task<bool?> IsAliveAsync()
+        public Task<bool?> IsAliveAsync()
         {
             throw new NotImplementedException();
         }
@@ -323,7 +323,7 @@ namespace SimpleWait.CoreTest
     public interface IMyService
     {
         Task<int?> GetMagicNumberAsync();
-        Task<string?> GetMagicString();
+        Task<string> GetMagicString();
         Task<bool?> IsAliveAsync();
         Task<Response> GetResponse();
 

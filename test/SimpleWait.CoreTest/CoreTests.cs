@@ -104,7 +104,6 @@ namespace SimpleWait.CoreTest
         {
             var r = new WorkingClass();
 
-            var index = 0;
             var result = Wait.Initialize()
                 .Until(() =>
                 {

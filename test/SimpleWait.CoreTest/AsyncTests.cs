@@ -2,7 +2,6 @@
 using RestSharp;
 using SimpleWait.Core;
 using System;
-using System.Threading.Tasks;
 
 namespace SimpleWait.CoreTest
 {
@@ -18,7 +17,7 @@ namespace SimpleWait.CoreTest
         }
 
         [Test]
-        public async Task TimeoutTest()
+        public void TimeoutTest()
         {
             var request = new RestRequest("pet/0", Method.Get);
 
