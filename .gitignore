@@ -6,3 +6,5 @@
 **/bin
 **/bin
 **/.vs
+/src/SimpleWait.Core/Properties/PublishProfiles
+/src/SimpleWait.Core/SimpleWait.Core.csproj.user
