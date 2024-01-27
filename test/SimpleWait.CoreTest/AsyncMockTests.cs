@@ -35,7 +35,7 @@ namespace SimpleWait.CoreTest
 
             mockService.Verify(m => m.GetMagicNumberAsync(), Times.Exactly(3));
 
-            Assert.AreEqual(4, result);
+            Assert.That(result, Is.EqualTo(4));
 
         }
 
@@ -64,8 +64,7 @@ namespace SimpleWait.CoreTest
 
             mockService.Verify(m => m.GetFixMagicNumberAsync(), Times.Exactly(2));
 
-            Assert.AreEqual(4, result);
-
+            Assert.That(result, Is.EqualTo(4));
         }
 
         [Test]
@@ -93,7 +92,7 @@ namespace SimpleWait.CoreTest
 
             mockService.Verify(m => m.GetMagicString(), Times.Exactly(2));
 
-            Assert.AreEqual("42", result);
+            Assert.That(result, Is.EqualTo("42"));
         }
 
         [Test]
@@ -122,7 +121,7 @@ namespace SimpleWait.CoreTest
 
             mockService.Verify(m => m.GetFixMagicString(), Times.Exactly(3));
 
-            Assert.AreEqual("42", result);
+            Assert.That(result, Is.EqualTo("42"));
         }
 
         [Test]
@@ -151,7 +150,7 @@ namespace SimpleWait.CoreTest
 
             mockService.Verify(m => m.GetResponse(), Times.Exactly(2));
 
-            Assert.AreEqual(s, result);
+            Assert.That(result, Is.EqualTo(s));
         }
 
         [Test]
@@ -186,7 +185,7 @@ namespace SimpleWait.CoreTest
 
             mockService.Verify(m => m.GetResponse(), Times.Exactly(4));
 
-            Assert.AreEqual(response3, result);
+            Assert.That(result, Is.EqualTo(response3));
         }
 
         [Test]
@@ -217,7 +216,7 @@ namespace SimpleWait.CoreTest
 
             mockService.Verify(m => m.IsFixAliveAsync(), Times.Exactly(2));
 
-            Assert.AreEqual(true, result);
+            Assert.That(result, Is.True);
         }
 
         [Test]
@@ -249,7 +248,7 @@ namespace SimpleWait.CoreTest
 
             mockService.Verify(m => m.IsAliveAsync(), Times.Exactly(3));
 
-            Assert.AreEqual(true, result);
+            Assert.That(result, Is.True);
         }
 
         [Test]
@@ -278,7 +277,7 @@ namespace SimpleWait.CoreTest
 
             mockService.Verify(m => m.IsAliveAsync(), Times.Exactly(2));
 
-            Assert.AreEqual(true, result);
+            Assert.That(result, Is.True);
         }
     }
 

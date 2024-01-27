@@ -57,7 +57,7 @@ namespace SimpleWait.CoreTest
                        return false;
                    });
 
-            Assert.IsFalse(result);
+            Assert.That(result, Is.False);
         }
 
         [Test]
@@ -80,7 +80,7 @@ namespace SimpleWait.CoreTest
                        }
                    });
 
-            Assert.IsTrue(result);
+            Assert.That(result, Is.True);
         }
 
         [Test]
@@ -96,7 +96,7 @@ namespace SimpleWait.CoreTest
                     return false;
                 });
 
-            Assert.AreEqual(2, counter);
+            Assert.That(counter, Is.EqualTo(2));
         }
 
         [Test]
@@ -110,8 +110,10 @@ namespace SimpleWait.CoreTest
                     return new WorkingClass();
                 });
 
-            Assert.IsNotNull(result);
-            Assert.AreEqual(typeof(WorkingClass), result.GetType());
+            Assert.That(result, Is.Not.Null.And.TypeOf(typeof(WorkingClass)));
+
+            //Assert.IsNotNull(result);
+            //Assert.AreEqual(typeof(WorkingClass), result.GetType());
         }
     }
 

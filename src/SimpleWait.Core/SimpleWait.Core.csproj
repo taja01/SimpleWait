@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Description>Wait based on selenium but without dependency</Description>
     <Authors>taja</Authors>
@@ -9,9 +9,9 @@
     <Product>SimpleWait</Product>
     <RepositoryUrl>https://github.com/taja01/SimpleWait</RepositoryUrl>
     <PackageTags>Wait Waiter</PackageTags>
-    <AssemblyVersion>1.2.2.0</AssemblyVersion>
-    <FileVersion>1.2.2.0</FileVersion>
-    <Version>1.2.2</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
+    <Version>2.0.0</Version>
   </PropertyGroup>
 
 </Project>
