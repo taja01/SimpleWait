@@ -4,7 +4,7 @@ namespace SimpleWait.Core
 {
     public class Wait
     {
-        private readonly IWait<bool> wait;
+        private readonly DefaultWait<bool> wait;
         private static readonly Type DefaultException = typeof(TimeoutException);
         private Type exceptionType = DefaultException;
         public Wait()
@@ -92,9 +92,9 @@ namespace SimpleWait.Core
             {
                 throw (Exception)Activator.CreateInstance(this.exceptionType, $"{e.Message} | {message(t)}");
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw e;
+                throw;
             }
         }
 

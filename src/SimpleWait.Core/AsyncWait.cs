@@ -5,7 +5,7 @@ namespace SimpleWait.Core
 {
     public class AsyncWait
     {
-        private readonly IAsyncWait<bool> wait;
+        private readonly AsyncDefaultWait<bool> wait;
         private static readonly Type DefaultException = typeof(TimeoutException);
         private Type exceptionType = DefaultException;
 
