@@ -8,7 +8,7 @@ namespace SimpleWait.CoreTest
     [TestFixture]
     public class AsyncTests
     {
-        private IRestClient client;
+        private RestClient client;
 
         [SetUp]
         public void Setup()

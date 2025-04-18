@@ -17,7 +17,7 @@ namespace SimpleWait.Core
         protected TimeSpan sleepInterval = DefaultSleepTimeout;
         protected string message = string.Empty;
 
-        private List<Type> ignoredExceptions = new List<Type>();
+        private readonly List<Type> ignoredExceptions = [];
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultWait&lt;T&gt;"/> class.
@@ -37,16 +37,11 @@ namespace SimpleWait.Core
         {
             if (input == null)
             {
-                throw new ArgumentNullException("input", "input cannot be null");
-            }
-
-            if (clock == null)
-            {
-                throw new ArgumentNullException("clock", "clock cannot be null");
+                throw new ArgumentNullException(nameof(input), "input cannot be null");
             }
 
             this.input = input;
-            this.clock = clock;
+            this.clock = clock ?? throw new ArgumentNullException(nameof(clock), "clock cannot be null");
         }
 
         /// <summary>
@@ -90,14 +85,14 @@ namespace SimpleWait.Core
         {
             if (exceptionTypes == null)
             {
-                throw new ArgumentNullException("exceptionTypes", "exceptionTypes cannot be null");
+                throw new ArgumentNullException(nameof(exceptionTypes), "exceptionTypes cannot be null");
             }
 
             foreach (Type exceptionType in exceptionTypes)
             {
                 if (!typeof(Exception).IsAssignableFrom(exceptionType))
                 {
-                    throw new ArgumentException("All types to be ignored must derive from System.Exception", "exceptionTypes");
+                    throw new ArgumentException("All types to be ignored must derive from System.Exception", nameof(exceptionTypes));
                 }
             }
 
@@ -123,7 +118,7 @@ namespace SimpleWait.Core
         {
             if (condition == null)
             {
-                throw new ArgumentNullException("condition", "condition cannot be null");
+                throw new ArgumentNullException(nameof(condition), "condition cannot be null");
             }
 
             Exception lastException = null;
@@ -180,7 +175,7 @@ namespace SimpleWait.Core
                     this.ThrowTimeoutException(timeoutMessage, lastException);
                 }
 
-                await Task.Delay(this.sleepInterval);
+                await Task.Delay(this.sleepInterval, token);
             }
         }
     }
