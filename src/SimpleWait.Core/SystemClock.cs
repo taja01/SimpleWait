@@ -7,9 +7,9 @@ namespace SimpleWait.Core
         /// <summary>
         /// Gets the current date and time values.
         /// </summary>
-        public DateTime Now
+        public DateTimeOffset Now
         {
-            get { return DateTime.Now; }
+            get { return DateTimeOffset.Now; }
         }
 
         /// <summary>
@@ -17,9 +17,9 @@ namespace SimpleWait.Core
         /// </summary>
         /// <param name="delay">The delay after to calculate.</param>
         /// <returns>The future date and time values.</returns>
-        public DateTime LaterBy(TimeSpan delay)
+        public DateTimeOffset LaterBy(TimeSpan delay)
         {
-            return DateTime.Now.Add(delay);
+            return DateTimeOffset.Now.Add(delay);
         }
 
         /// <summary>
@@ -27,9 +27,9 @@ namespace SimpleWait.Core
         /// </summary>
         /// <param name="otherDateTime">The date and time values to compare the current date and time values to.</param>
         /// <returns><see langword="true"/> if the current date and time is before the specified date and time; otherwise, <see langword="false"/>.</returns>
-        public bool IsNowBefore(DateTime otherDateTime)
+        public bool IsNowBefore(DateTimeOffset otherDateTime)
         {
-            return DateTime.Now < otherDateTime;
+            return DateTimeOffset.Now < otherDateTime;
         }
     }
 }

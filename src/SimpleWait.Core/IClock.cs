@@ -7,20 +7,20 @@ namespace SimpleWait.Core
         /// <summary>
         /// Gets the current date and time values.
         /// </summary>
-        DateTime Now { get; }
+        DateTimeOffset Now { get; }
 
         /// <summary>
-        /// Gets the <see cref="DateTime"/> at a specified offset in the future.
+        /// Gets the <see cref="DateTimeOffset"/> at a specified offset in the future.
         /// </summary>
         /// <param name="delay">The offset to use.</param>
         /// <returns>The <see cref="DateTime"/> at the specified offset in the future.</returns>
-        DateTime LaterBy(TimeSpan delay);
+        DateTimeOffset LaterBy(TimeSpan delay);
 
         /// <summary>
         /// Gets a value indicating whether the current date and time is before the specified date and time.
         /// </summary>
         /// <param name="otherDateTime">The date and time values to compare the current date and time values to.</param>
         /// <returns><see langword="true"/> if the current date and time is before the specified date and time; otherwise, <see langword="false"/>.</returns>
-        bool IsNowBefore(DateTime otherDateTime);
+        bool IsNowBefore(DateTimeOffset otherDateTime);
     }
 }
