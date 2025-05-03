@@ -2,6 +2,7 @@ using NUnit.Framework;
 using SimpleWait.Core;
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace SimpleWait.CoreTest
 {
@@ -115,10 +116,63 @@ namespace SimpleWait.CoreTest
             //Assert.IsNotNull(result);
             //Assert.AreEqual(typeof(WorkingClass), result.GetType());
         }
+
+        [Test]
+        public void TimeOutWithOwnExceptionTest()
+        {
+            Assert.That(() => RetryPolicy.Initialize()
+                                              .Timeout(TimeSpan.FromSeconds(1))
+                                              .Throw<InvalidOperationException>()
+                                              .Execute(() =>
+                                              {
+                                                  return NotWorkingClass.Work();
+                                              }),
+              Throws.Exception.TypeOf<InvalidOperationException>().With.Message.EqualTo("Timed out after 1 seconds"));
+        }
+
+        [Test]
+        public void AsyncTimeOutTest()
+        {
+            Assert.ThrowsAsync<InvalidOperationException>(async () => await RetryPolicy.Initialize()
+                .Timeout(TimeSpan.FromSeconds(1))
+                .Throw<InvalidOperationException>()
+                .ExecuteAsync(async () =>
+                {
+                    return await NotWorkingClass.WorkAsync();
+                }));
+        }
+
+        [Test]
+        public void MessageTest()
+        {
+            Assert.That(() => RetryPolicy.Initialize()
+                                             .Timeout(TimeSpan.FromSeconds(1))
+                                             .Throw<InvalidOperationException>()
+                                             .Message("My message")
+                                             .Execute(() =>
+                                             {
+                                                 return NotWorkingClass.Work();
+                                             }),
+             Throws.Exception.TypeOf<InvalidOperationException>().With.Message.EqualTo("Timed out after 1 seconds: My message"));
+        }
     }
 
     class WorkingClass
     {
 
+    }
+
+    class NotWorkingClass
+    {
+        public static object Work()
+        {
+            return null;
+        }
+
+        public static async Task<object> WorkAsync()
+        {
+            await Task.Delay(TimeSpan.FromSeconds(2));
+            return null;
+        }
     }
 }
