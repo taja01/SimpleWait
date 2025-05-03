@@ -19,8 +19,8 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync(2)
                 .ReturnsAsync(4);
 
-            var result = await AsyncWait.Initialize()
-                .UntilAsync(async () =>
+            var result = await AsyncRetryPolicy.Initialize()
+                .ExecuteAsync(async () =>
                 {
                     var r = await mockService.Object.GetMagicNumberAsync();
 
@@ -48,8 +48,8 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync(2)
                 .ReturnsAsync(4);
 
-            var result = await AsyncWait.Initialize()
-                .UntilAsync(async () =>
+            var result = await AsyncRetryPolicy.Initialize()
+                .ExecuteAsync(async () =>
                 {
                     var r = await mockService.Object.GetFixMagicNumberAsync();
 
@@ -76,8 +76,8 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync((string)null)
                 .ReturnsAsync("42");
 
-            var result = await AsyncWait.Initialize()
-                .UntilAsync(async () =>
+            var result = await AsyncRetryPolicy.Initialize()
+                .ExecuteAsync(async () =>
                 {
                     var r = await mockService.Object.GetMagicString();
 
@@ -105,8 +105,8 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync("")
                 .ReturnsAsync("42");
 
-            var result = await AsyncWait.Initialize().Timeout(System.TimeSpan.FromHours(1))
-                .UntilAsync(async () =>
+            var result = await AsyncRetryPolicy.Initialize().Timeout(System.TimeSpan.FromHours(1))
+                .ExecuteAsync(async () =>
                 {
                     var r = await mockService.Object.GetFixMagicString();
 
@@ -134,8 +134,8 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync((Response)null)
                 .ReturnsAsync(s);
 
-            var result = await AsyncWait.Initialize()
-                .UntilAsync(async () =>
+            var result = await AsyncRetryPolicy.Initialize()
+                .ExecuteAsync(async () =>
                 {
                     var r = await mockService.Object.GetResponse();
 
@@ -168,9 +168,9 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync(response2)
                 .ReturnsAsync(response3);
 
-            var result = await AsyncWait.Initialize()
+            var result = await AsyncRetryPolicy.Initialize()
                 .Timeout(TimeSpan.FromHours(1))
-                .UntilAsync(async () =>
+                .ExecuteAsync(async () =>
                 {
                     var r = await mockService.Object.GetResponse();
 
@@ -197,9 +197,9 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync(false)
                 .ReturnsAsync(true);
 
-            var result = await AsyncWait.Initialize()
+            var result = await AsyncRetryPolicy.Initialize()
                 .Timeout(TimeSpan.FromHours(1))
-                .UntilAsync(async () =>
+                .ExecuteAsync(async () =>
                 {
                     var r = await mockService.Object.IsFixAliveAsync();
 
@@ -229,9 +229,9 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync(false)
                 .ReturnsAsync(true);
 
-            var result = await AsyncWait.Initialize()
+            var result = await AsyncRetryPolicy.Initialize()
                 .Timeout(TimeSpan.FromHours(1))
-                .UntilAsync(async () =>
+                .ExecuteAsync(async () =>
                 {
                     var r = await mockService.Object.IsAliveAsync();
 
@@ -260,10 +260,10 @@ namespace SimpleWait.CoreTest
                 .ThrowsAsync(new System.Net.WebException())
                 .ReturnsAsync(true);
 
-            var result = await AsyncWait.Initialize()
+            var result = await AsyncRetryPolicy.Initialize()
                 .Timeout(TimeSpan.FromHours(1))
                 .IgnoreExceptionTypes(typeof(System.Net.WebException))
-                .UntilAsync(async () =>
+                .ExecuteAsync(async () =>
                 {
                     var r = await mockService.Object.IsAliveAsync();
 

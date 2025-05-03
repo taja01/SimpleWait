@@ -2,34 +2,34 @@
 
 namespace SimpleWait.Core
 {
-    public class Wait
+    public class RetryPolicy
     {
         private readonly DefaultWait<bool> wait;
         private static readonly Type DefaultException = typeof(TimeoutException);
         private Type exceptionType = DefaultException;
-        public Wait()
+        public RetryPolicy()
         {
             this.wait = new DefaultWait<bool>(true) { Timeout = TimeSpan.FromSeconds(5) };
         }
 
-        public static Wait Initialize()
+        public static RetryPolicy Initialize()
         {
-            return new Wait();
+            return new RetryPolicy();
         }
 
-        public Wait IgnoreExceptionTypes(params Type[] exceptionTypes)
+        public RetryPolicy IgnoreExceptionTypes(params Type[] exceptionTypes)
         {
             this.wait.IgnoreExceptionTypes(exceptionTypes);
             return this;
         }
 
-        public Wait Throw<T>() where T : Exception
+        public RetryPolicy Throw<T>() where T : Exception
         {
             this.exceptionType = typeof(T);
             return this;
         }
 
-        public Wait Timeout(TimeSpan? timeout)
+        public RetryPolicy Timeout(TimeSpan? timeout)
         {
             if (timeout.HasValue)
             {
@@ -39,13 +39,13 @@ namespace SimpleWait.Core
             return this;
         }
 
-        public Wait Message(string message)
+        public RetryPolicy Message(string message)
         {
             this.wait.Message = message;
             return this;
         }
 
-        public Wait PollingInterval(TimeSpan pollingInterval)
+        public RetryPolicy PollingInterval(TimeSpan pollingInterval)
         {
             this.wait.PollingInterval = pollingInterval;
             return this;
@@ -55,7 +55,7 @@ namespace SimpleWait.Core
         {
             try
             {
-                this.Until(condition);
+                this.Execute(condition);
                 return true;
             }
             catch (TimeoutException)
@@ -64,7 +64,7 @@ namespace SimpleWait.Core
             }
         }
 
-        public void Until(Func<bool> condition)
+        public void Execute(Func<bool> condition)
         {
             bool Func(bool b) => condition();
             try
@@ -77,7 +77,7 @@ namespace SimpleWait.Core
             }
         }
 
-        public void Until<T>(Func<T> func, Func<T, bool> success, Func<T, string> message)
+        public void Execute<T>(Func<T> func, Func<T, bool> success, Func<T, string> message)
         {
             T t = default;
             try
@@ -98,7 +98,7 @@ namespace SimpleWait.Core
             }
         }
 
-        public TResult Until<TResult>(Func<TResult> condition)
+        public TResult Execute<TResult>(Func<TResult> condition)
         {
             TResult Func(bool b) => condition();
             try

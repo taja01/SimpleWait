@@ -3,34 +3,34 @@ using System.Threading.Tasks;
 
 namespace SimpleWait.Core
 {
-    public class AsyncWait
+    public class AsyncRetryPolicy
     {
         private readonly AsyncDefaultWait<bool> wait;
         private static readonly Type DefaultException = typeof(TimeoutException);
         private Type exceptionType = DefaultException;
 
-        public AsyncWait()
+        public AsyncRetryPolicy()
         {
             this.wait = new AsyncDefaultWait<bool>(true) { Timeout = TimeSpan.FromSeconds(5) };
         }
-        public static AsyncWait Initialize()
+        public static AsyncRetryPolicy Initialize()
         {
-            return new AsyncWait();
+            return new AsyncRetryPolicy();
         }
 
-        public AsyncWait IgnoreExceptionTypes(params Type[] exceptionTypes)
+        public AsyncRetryPolicy IgnoreExceptionTypes(params Type[] exceptionTypes)
         {
             this.wait.IgnoreExceptionTypes(exceptionTypes);
             return this;
         }
 
-        public AsyncWait Throw<T>() where T : Exception
+        public AsyncRetryPolicy Throw<T>() where T : Exception
         {
             this.exceptionType = typeof(T);
             return this;
         }
 
-        public AsyncWait Timeout(TimeSpan? timeout)
+        public AsyncRetryPolicy Timeout(TimeSpan? timeout)
         {
             if (timeout.HasValue)
             {
@@ -40,19 +40,19 @@ namespace SimpleWait.Core
             return this;
         }
 
-        public AsyncWait Message(string message)
+        public AsyncRetryPolicy Message(string message)
         {
             this.wait.Message = message;
             return this;
         }
 
-        public AsyncWait PollingInterval(TimeSpan pollingInterval)
+        public AsyncRetryPolicy PollingInterval(TimeSpan pollingInterval)
         {
             this.wait.PollingInterval = pollingInterval;
             return this;
         }
 
-        public async Task<TResult> UntilAsync<TResult>(Func<Task<TResult>> condition)
+        public async Task<TResult> ExecuteAsync<TResult>(Func<Task<TResult>> condition)
         {
             try
             {

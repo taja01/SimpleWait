@@ -10,7 +10,7 @@ namespace SimpleWait.CoreTest
         [Test]
         public void DefaultTimeoutTest()
         {
-            Assert.Throws<TimeoutException>(() => Wait.Initialize().Message("Default timeout test").Until(() => false));
+            Assert.Throws<TimeoutException>(() => RetryPolicy.Initialize().Message("Default timeout test").Execute(() => false));
         }
 
         [Test]
@@ -18,7 +18,7 @@ namespace SimpleWait.CoreTest
         {
             var sw = new Stopwatch();
             sw.Start();
-            Assert.Throws<TimeoutException>(() => Wait.Initialize().Timeout(TimeSpan.FromSeconds(1)).Message("Timeout test").Until(() => false));
+            Assert.Throws<TimeoutException>(() => RetryPolicy.Initialize().Timeout(TimeSpan.FromSeconds(1)).Message("Timeout test").Execute(() => false));
             sw.Stop();
             Assert.That(sw.ElapsedMilliseconds > 1000 && sw.ElapsedMilliseconds < 1300);
         }
@@ -26,7 +26,7 @@ namespace SimpleWait.CoreTest
         [Test]
         public void ExceptionThrowTest()
         {
-            Assert.Throws<DivideByZeroException>(() => Wait.Initialize().Timeout(TimeSpan.FromMilliseconds(1)).Throw<DivideByZeroException>().Message("Exception throw").Until(() => false));
+            Assert.Throws<DivideByZeroException>(() => RetryPolicy.Initialize().Timeout(TimeSpan.FromMilliseconds(1)).Throw<DivideByZeroException>().Message("Exception throw").Execute(() => false));
         }
 
         [Test]
@@ -37,11 +37,11 @@ namespace SimpleWait.CoreTest
 
             Assert.Throws<TimeoutException>(() =>
             {
-                Wait.Initialize()
+                RetryPolicy.Initialize()
                    .Message("Ignore Exception test")
                    .Timeout(TimeSpan.FromSeconds(1))
                    .IgnoreExceptionTypes(typeof(DivideByZeroException))
-                   .Until(() => one / zero == 0);
+                   .Execute(() => one / zero == 0);
             });
         }
 
@@ -50,7 +50,7 @@ namespace SimpleWait.CoreTest
         {
             var m_array = new[] { 1, 3, 5, 7, 9, 10 };
 
-            var result = Wait.Initialize()
+            var result = RetryPolicy.Initialize()
                    .Message("Success test")
                    .Success(() =>
                    {
@@ -65,7 +65,7 @@ namespace SimpleWait.CoreTest
         {
             var m_array = new[] { 1, 3, 5, 7, 9, 10 };
             var index = 0;
-            var result = Wait.Initialize()
+            var result = RetryPolicy.Initialize()
                    .Message("Success test")
                    .Success(() =>
                    {
@@ -88,7 +88,7 @@ namespace SimpleWait.CoreTest
         {
             var counter = -1;
 
-            Wait.Initialize()
+            RetryPolicy.Initialize()
                 .PollingInterval(TimeSpan.FromSeconds(3))
                 .Success(() =>
                 {
@@ -104,8 +104,8 @@ namespace SimpleWait.CoreTest
         {
             var r = new WorkingClass();
 
-            var result = Wait.Initialize()
-                .Until(() =>
+            var result = RetryPolicy.Initialize()
+                .Execute(() =>
                 {
                     return new WorkingClass();
                 });
