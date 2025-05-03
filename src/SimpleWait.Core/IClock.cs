@@ -5,11 +5,6 @@ namespace SimpleWait.Core
     internal interface IClock
     {
         /// <summary>
-        /// Gets the current date and time values.
-        /// </summary>
-        DateTimeOffset Now { get; }
-
-        /// <summary>
         /// Gets the <see cref="DateTimeOffset"/> at a specified offset in the future.
         /// </summary>
         /// <param name="delay">The offset to use.</param>

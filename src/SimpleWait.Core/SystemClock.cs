@@ -5,14 +5,6 @@ namespace SimpleWait.Core
     internal class SystemClock : IClock
     {
         /// <summary>
-        /// Gets the current date and time values.
-        /// </summary>
-        public DateTimeOffset Now
-        {
-            get { return DateTimeOffset.Now; }
-        }
-
-        /// <summary>
         /// Calculates the date and time values after a specific delay.
         /// </summary>
         /// <param name="delay">The delay after to calculate.</param>
