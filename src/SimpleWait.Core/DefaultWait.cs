@@ -115,7 +115,7 @@ namespace SimpleWait.Core
         /// <returns>The delegate's return value.</returns>
         public virtual TResult Execute<TResult>(Func<T, TResult> condition)
         {
-            return Until(condition, CancellationToken.None);
+            return Execute(condition, CancellationToken.None);
         }
 
         /// <summary>
@@ -133,7 +133,7 @@ namespace SimpleWait.Core
         /// <param name="condition">A delegate taking an object of type T as its parameter, and returning a TResult.</param>
         /// <param name="token">A cancellation token that can be used to cancel the wait.</param>
         /// <returns>The delegate's return value.</returns>
-        public virtual TResult Until<TResult>(Func<T, TResult> condition, CancellationToken token)
+        public virtual TResult Execute<TResult>(Func<T, TResult> condition, CancellationToken token)
         {
             if (condition == null)
             {
