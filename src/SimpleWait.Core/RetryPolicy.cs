@@ -70,7 +70,7 @@ namespace SimpleWait.Core
             bool Func(bool b) => condition();
             try
             {
-                _ = this.wait.Until(Func);
+                _ = this.wait.Execute(Func);
             }
             catch (TimeoutException e) when (this.exceptionType != DefaultException)
             {
@@ -83,7 +83,7 @@ namespace SimpleWait.Core
             T t = default;
             try
             {
-                _ = this.wait.Until(_ =>
+                _ = this.wait.Execute(_ =>
                 {
                     t = func();
                     return success(t);
@@ -104,7 +104,7 @@ namespace SimpleWait.Core
             TResult Func(bool b) => condition();
             try
             {
-                return this.wait.Until(Func);
+                return this.wait.Execute(Func);
             }
             catch (TimeoutException e) when (this.exceptionType != DefaultException)
             {

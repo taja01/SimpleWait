@@ -113,7 +113,7 @@ namespace SimpleWait.Core
         /// <typeparam name="TResult">The delegate's expected return type.</typeparam>
         /// <param name="condition">A delegate taking an object of type T as its parameter, and returning a TResult.</param>
         /// <returns>The delegate's return value.</returns>
-        public virtual TResult Until<TResult>(Func<T, TResult> condition)
+        public virtual TResult Execute<TResult>(Func<T, TResult> condition)
         {
             return Until(condition, CancellationToken.None);
         }
