@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SimpleWait.Core
 {
@@ -111,9 +113,9 @@ namespace SimpleWait.Core
         /// <typeparam name="TResult">The delegate's expected return type.</typeparam>
         /// <param name="condition">A delegate taking an object of type T as its parameter, and returning a TResult.</param>
         /// <returns>The delegate's return value.</returns>
-        public virtual TResult Until<TResult>(Func<T, TResult> condition)
+        public virtual TResult Execute<TResult>(Func<T, TResult> condition)
         {
-            return Until(condition, CancellationToken.None);
+            return Execute(condition, CancellationToken.None);
         }
 
         /// <summary>
@@ -131,7 +133,7 @@ namespace SimpleWait.Core
         /// <param name="condition">A delegate taking an object of type T as its parameter, and returning a TResult.</param>
         /// <param name="token">A cancellation token that can be used to cancel the wait.</param>
         /// <returns>The delegate's return value.</returns>
-        public virtual TResult Until<TResult>(Func<T, TResult> condition, CancellationToken token)
+        public virtual TResult Execute<TResult>(Func<T, TResult> condition, CancellationToken token)
         {
             if (condition == null)
             {
@@ -193,6 +195,76 @@ namespace SimpleWait.Core
                 }
 
                 Thread.Sleep(this.sleepInterval);
+            }
+        }
+
+        public virtual async Task<TResult> ExecuteAsync<TResult>(Func<Task<TResult>> condition)
+        {
+            return await ExecuteAsync(condition, CancellationToken.None);
+        }
+
+        public virtual async Task<TResult> ExecuteAsync<TResult>(Func<Task<TResult>> condition, CancellationToken token)
+        {
+            if (condition == null)
+            {
+                throw new ArgumentNullException(nameof(condition), "condition cannot be null");
+            }
+
+            Exception lastException = null;
+            var endTime = this.clock.LaterBy(this.timeout);
+            while (true)
+            {
+                token.ThrowIfCancellationRequested();
+
+                try
+                {
+                    var result = await Task.Run(condition);
+
+                    if (result != null)
+                    {
+                        var resultType = typeof(TResult);
+
+                        if (resultType == typeof(bool?) || resultType == typeof(bool))
+                        {
+                            var boolResult = result as bool?;
+                            if (boolResult.HasValue && boolResult.Value)
+                            {
+                                return result;
+                            }
+                        }
+                        else
+                        {
+                            return result;
+                        }
+                    }
+                }
+                catch (TargetInvocationException)
+                {
+                }
+                catch (Exception ex)
+                {
+                    if (!this.IsIgnoredException(ex))
+                    {
+                        throw;
+                    }
+
+                    lastException = ex;
+                }
+
+                // Check the timeout after evaluating the function to ensure conditions
+                // with a zero timeout can succeed.
+                if (!this.clock.IsNowBefore(endTime))
+                {
+                    string timeoutMessage = string.Format(CultureInfo.InvariantCulture, "Timed out after {0} seconds", this.timeout.TotalSeconds);
+                    if (!string.IsNullOrEmpty(this.message))
+                    {
+                        timeoutMessage += ": " + this.message;
+                    }
+
+                    this.ThrowTimeoutException(timeoutMessage, lastException);
+                }
+
+                await Task.Delay(this.sleepInterval, token);
             }
         }
 
