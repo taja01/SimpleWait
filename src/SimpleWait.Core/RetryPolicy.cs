@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace SimpleWait.Core
 {
@@ -104,6 +105,18 @@ namespace SimpleWait.Core
             try
             {
                 return this.wait.Until(Func);
+            }
+            catch (TimeoutException e) when (this.exceptionType != DefaultException)
+            {
+                throw (Exception)Activator.CreateInstance(this.exceptionType, e.Message);
+            }
+        }
+
+        public async Task<TResult> ExecuteAsync<TResult>(Func<Task<TResult>> condition)
+        {
+            try
+            {
+                return await wait.ExecuteAsync(condition);
             }
             catch (TimeoutException e) when (this.exceptionType != DefaultException)
             {

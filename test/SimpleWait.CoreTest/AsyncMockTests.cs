@@ -19,7 +19,7 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync(2)
                 .ReturnsAsync(4);
 
-            var result = await AsyncRetryPolicy.Initialize()
+            var result = await RetryPolicy.Initialize()
                 .ExecuteAsync(async () =>
                 {
                     var r = await mockService.Object.GetMagicNumberAsync();
@@ -48,7 +48,7 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync(2)
                 .ReturnsAsync(4);
 
-            var result = await AsyncRetryPolicy.Initialize()
+            var result = await RetryPolicy.Initialize()
                 .ExecuteAsync(async () =>
                 {
                     var r = await mockService.Object.GetFixMagicNumberAsync();
@@ -76,7 +76,7 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync((string)null)
                 .ReturnsAsync("42");
 
-            var result = await AsyncRetryPolicy.Initialize()
+            var result = await RetryPolicy.Initialize()
                 .ExecuteAsync(async () =>
                 {
                     var r = await mockService.Object.GetMagicString();
@@ -105,7 +105,7 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync("")
                 .ReturnsAsync("42");
 
-            var result = await AsyncRetryPolicy.Initialize().Timeout(System.TimeSpan.FromHours(1))
+            var result = await RetryPolicy.Initialize().Timeout(System.TimeSpan.FromHours(1))
                 .ExecuteAsync(async () =>
                 {
                     var r = await mockService.Object.GetFixMagicString();
@@ -134,7 +134,7 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync((Response)null)
                 .ReturnsAsync(s);
 
-            var result = await AsyncRetryPolicy.Initialize()
+            var result = await RetryPolicy.Initialize()
                 .ExecuteAsync(async () =>
                 {
                     var r = await mockService.Object.GetResponse();
@@ -168,7 +168,7 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync(response2)
                 .ReturnsAsync(response3);
 
-            var result = await AsyncRetryPolicy.Initialize()
+            var result = await RetryPolicy.Initialize()
                 .Timeout(TimeSpan.FromHours(1))
                 .ExecuteAsync(async () =>
                 {
@@ -197,7 +197,7 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync(false)
                 .ReturnsAsync(true);
 
-            var result = await AsyncRetryPolicy.Initialize()
+            var result = await RetryPolicy.Initialize()
                 .Timeout(TimeSpan.FromHours(1))
                 .ExecuteAsync(async () =>
                 {
@@ -229,7 +229,7 @@ namespace SimpleWait.CoreTest
                 .ReturnsAsync(false)
                 .ReturnsAsync(true);
 
-            var result = await AsyncRetryPolicy.Initialize()
+            var result = await RetryPolicy.Initialize()
                 .Timeout(TimeSpan.FromHours(1))
                 .ExecuteAsync(async () =>
                 {
@@ -260,7 +260,7 @@ namespace SimpleWait.CoreTest
                 .ThrowsAsync(new System.Net.WebException())
                 .ReturnsAsync(true);
 
-            var result = await AsyncRetryPolicy.Initialize()
+            var result = await RetryPolicy.Initialize()
                 .Timeout(TimeSpan.FromHours(1))
                 .IgnoreExceptionTypes(typeof(System.Net.WebException))
                 .ExecuteAsync(async () =>
