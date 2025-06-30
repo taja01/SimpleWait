@@ -6,7 +6,7 @@ Waiting for result (async/sync) with differenct conditions
 
 # Example
 ## Async example:
-            var petResponse = await AsyncRetryPolicy.Initialize()
+            var petResponse = await RetryPolicy.Initialize()
                 .Timeout(TimeSpan.FromSeconds(10))
                 .IgnoreExceptionTypes(typeof(PetStore.ApiException))
                 .ExecuteAsync(async () =>
