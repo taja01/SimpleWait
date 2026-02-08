@@ -8,6 +8,7 @@ namespace SimpleWait.Core
         private readonly DefaultWait<bool> wait;
         private static readonly Type DefaultException = typeof(TimeoutException);
         private Type exceptionType = DefaultException;
+
         public RetryPolicy()
         {
             this.wait = new DefaultWait<bool>(true) { Timeout = TimeSpan.FromSeconds(5) };
@@ -59,7 +60,7 @@ namespace SimpleWait.Core
                 this.Execute(condition);
                 return true;
             }
-            catch (TimeoutException)
+            catch (Exception ex) when (IsTimeoutOrConfiguredTimeoutException(ex))
             {
                 return false;
             }
@@ -106,9 +107,10 @@ namespace SimpleWait.Core
             {
                 return this.wait.Execute(Func);
             }
-            catch (TimeoutException e) when (this.exceptionType != DefaultException)
+            catch (TimeoutException e)
             {
-                throw (Exception)Activator.CreateInstance(this.exceptionType, e.Message);
+                ThrowConfiguredOrDefault(e);
+                throw;
             }
         }
 
@@ -118,9 +120,65 @@ namespace SimpleWait.Core
             {
                 return await wait.ExecuteAsync(condition);
             }
-            catch (TimeoutException e) when (this.exceptionType != DefaultException)
+            catch (TimeoutException e)
             {
-                throw (Exception)Activator.CreateInstance(this.exceptionType, e.Message);
+                ThrowConfiguredOrDefault(e);
+                throw;
+            }
+        }
+
+        private bool IsTimeoutOrConfiguredTimeoutException(Exception ex)
+        {
+            if (ex is TimeoutException) return true;
+            if (this.exceptionType != DefaultException)
+            {
+                return this.exceptionType.IsAssignableFrom(ex.GetType());
+            }
+            return false;
+        }
+
+        private void ThrowConfiguredOrDefault(TimeoutException timeoutEx, string overrideMessage = null)
+        {
+            var message = overrideMessage ?? timeoutEx.Message;
+
+            if (this.exceptionType != DefaultException)
+            {
+                Exception created = null;
+
+                try
+                {
+                    created = (Exception)Activator.CreateInstance(this.exceptionType, message, timeoutEx);
+                }
+                catch { /* ignore and try other ctors */ }
+
+                if (created == null)
+                {
+                    try
+                    {
+                        created = (Exception)Activator.CreateInstance(this.exceptionType, message);
+                    }
+                    catch { }
+                }
+                if (created == null)
+                {
+                    try
+                    {
+                        created = (Exception)Activator.CreateInstance(this.exceptionType);
+                    }
+                    catch { }
+                }
+
+                if (created != null)
+                {
+                    throw created;
+                }
+
+                // If we couldn't construct the configured exception type, fall back to InvalidOperationException
+                throw new InvalidOperationException($"Failed to create exception of type {this.exceptionType.FullName}", timeoutEx);
+            }
+            else
+            {
+                throw new TimeoutException(message, timeoutEx);
             }
         }
     }
