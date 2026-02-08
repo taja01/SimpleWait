@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -218,7 +217,8 @@ namespace SimpleWait.Core
 
                 try
                 {
-                    var result = await Task.Run(condition);
+                    var task = condition() ?? throw new InvalidOperationException("Condition returned a null Task");
+                    var result = await task.ConfigureAwait(false);
 
                     if (result != null)
                     {
@@ -237,9 +237,6 @@ namespace SimpleWait.Core
                             return result;
                         }
                     }
-                }
-                catch (TargetInvocationException)
-                {
                 }
                 catch (Exception ex)
                 {
@@ -264,7 +261,7 @@ namespace SimpleWait.Core
                     this.ThrowTimeoutException(timeoutMessage, lastException);
                 }
 
-                await Task.Delay(this.sleepInterval, token);
+                await Task.Delay(this.sleepInterval, token).ConfigureAwait(false);
             }
         }
 
