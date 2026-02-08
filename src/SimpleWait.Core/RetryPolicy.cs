@@ -8,11 +8,16 @@ namespace SimpleWait.Core
     /// Fluent helper that wraps a <see cref="DefaultWait{T}"/> to provide retry/wait policies
     /// for synchronous and asynchronous operations.
     /// </summary>
-    public class RetryPolicy
+    public partial class RetryPolicy
     {
         private readonly DefaultWait<bool> wait;
         private static readonly Type DefaultException = typeof(TimeoutException);
         private Type exceptionType = DefaultException;
+
+        /// <summary>
+        /// Create a typed retry policy for <typeparamref name="TResult"/>.
+        /// </summary>
+        public static RetryPolicy<TResult> For<TResult>() => new RetryPolicy<TResult>();
 
         /// <summary>
         /// Initializes a new instance of <see cref="RetryPolicy"/> with a default timeout.
