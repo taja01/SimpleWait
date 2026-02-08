@@ -266,7 +266,7 @@ namespace SimpleWait.Core
         }
 
         /// <summary>
-        /// Throws a <see cref="WebDriverTimeoutException"/> with the given message.
+        /// Throws a <see cref="TimeoutException"/> with the given message.
         /// </summary>
         /// <param name="exceptionMessage">The message of the exception.</param>
         /// <param name="lastException">The last exception thrown by the condition.</param>

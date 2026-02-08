@@ -107,7 +107,7 @@ namespace SimpleWait.Core
                 this.Execute(condition);
                 return true;
             }
-            catch (Exception ex) when (IsTimeoutOrConfiguredTimeoutException(ex))
+            catch (Exception ex) when (ExceptionHelpers.IsTimeoutOrConfiguredTimeoutException(ex, this.exceptionType))
             {
                 return false;
             }
@@ -131,7 +131,7 @@ namespace SimpleWait.Core
             {
                 throw;
             }
-            catch (Exception ex) when (IsTimeoutOrConfiguredTimeoutException(ex))
+            catch (Exception ex) when (ExceptionHelpers.IsTimeoutOrConfiguredTimeoutException(ex, this.exceptionType))
             {
                 return false;
             }
@@ -151,7 +151,7 @@ namespace SimpleWait.Core
             }
             catch (TimeoutException e)
             {
-                ThrowConfiguredOrDefault(e);
+                ExceptionHelpers.ThrowConfiguredOrDefault(this.exceptionType, e);
             }
         }
 
@@ -173,7 +173,7 @@ namespace SimpleWait.Core
             }
             catch (TimeoutException e)
             {
-                ThrowConfiguredOrDefault(e);
+                ExceptionHelpers.ThrowConfiguredOrDefault(this.exceptionType, e);
             }
         }
 
@@ -198,7 +198,7 @@ namespace SimpleWait.Core
             }
             catch (TimeoutException e)
             {
-                ThrowConfiguredOrDefault(e, $"{e.Message} | {message(t)}");
+                ExceptionHelpers.ThrowConfiguredOrDefault(this.exceptionType, e, $"{e.Message} | {message(t)}");
             }
         }
 
@@ -218,7 +218,7 @@ namespace SimpleWait.Core
             }
             catch (TimeoutException e)
             {
-                ThrowConfiguredOrDefault(e);
+                ExceptionHelpers.ThrowConfiguredOrDefault(this.exceptionType, e);
                 throw; // kept for caller clarity; helper always throws
             }
         }
@@ -237,7 +237,7 @@ namespace SimpleWait.Core
             }
             catch (TimeoutException e)
             {
-                ThrowConfiguredOrDefault(e);
+                ExceptionHelpers.ThrowConfiguredOrDefault(this.exceptionType, e);
                 throw;
             }
         }
@@ -258,76 +258,8 @@ namespace SimpleWait.Core
             }
             catch (TimeoutException e)
             {
-                ThrowConfiguredOrDefault(e);
+                ExceptionHelpers.ThrowConfiguredOrDefault(this.exceptionType, e);
                 throw;
-            }
-        }
-
-        /// <summary>
-        /// Returns true if <paramref name="ex"/> is a <see cref="TimeoutException"/> or is assignable
-        /// to the configured exception type (set via <see cref="Throw{T}"/>).
-        /// </summary>
-        /// <param name="ex">Exception to test.</param>
-        /// <returns>True when the exception represents a timeout according to policy.</returns>
-        private bool IsTimeoutOrConfiguredTimeoutException(Exception ex)
-        {
-            if (ex is TimeoutException) return true;
-            if (this.exceptionType != DefaultException)
-            {
-                return this.exceptionType.IsAssignableFrom(ex.GetType());
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Wraps the provided <paramref name="timeoutEx"/> into the configured exception type if one is set,
-        /// preserving the original exception as InnerException when possible. If no custom type is configured,
-        /// rethrows a <see cref="TimeoutException"/> with the given message and inner exception.
-        /// </summary>
-        /// <param name="timeoutEx">The original timeout exception to wrap or rethrow.</param>
-        /// <param name="overrideMessage">Optional message to use instead of the original exception message.</param>
-        private void ThrowConfiguredOrDefault(TimeoutException timeoutEx, string overrideMessage = null)
-        {
-            var message = overrideMessage ?? timeoutEx.Message;
-
-            if (this.exceptionType != DefaultException)
-            {
-                Exception created = null;
-
-                try
-                {
-                    created = (Exception)Activator.CreateInstance(this.exceptionType, message, timeoutEx);
-                }
-                catch { /* ignore and try other ctors */ }
-
-                if (created == null)
-                {
-                    try
-                    {
-                        created = (Exception)Activator.CreateInstance(this.exceptionType, message);
-                    }
-                    catch { }
-                }
-                if (created == null)
-                {
-                    try
-                    {
-                        created = (Exception)Activator.CreateInstance(this.exceptionType);
-                    }
-                    catch { }
-                }
-
-                if (created != null)
-                {
-                    throw created;
-                }
-
-                // If we couldn't construct the configured exception type, fall back to InvalidOperationException
-                throw new InvalidOperationException($"Failed to create exception of type {this.exceptionType.FullName}", timeoutEx);
-            }
-            else
-            {
-                throw new TimeoutException(message, timeoutEx);
             }
         }
     }

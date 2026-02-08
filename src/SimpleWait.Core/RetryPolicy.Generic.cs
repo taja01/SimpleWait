@@ -87,7 +87,7 @@ namespace SimpleWait.Core
             }
             catch (TimeoutException e)
             {
-                ThrowConfiguredOrDefault(e);
+                ExceptionHelpers.ThrowConfiguredOrDefault(this.exceptionType, e);
                 throw;
             }
         }
@@ -106,7 +106,7 @@ namespace SimpleWait.Core
             }
             catch (TimeoutException e)
             {
-                ThrowConfiguredOrDefault(e);
+                ExceptionHelpers.ThrowConfiguredOrDefault(this.exceptionType, e);
                 throw;
             }
         }
@@ -124,7 +124,7 @@ namespace SimpleWait.Core
             }
             catch (TimeoutException e)
             {
-                ThrowConfiguredOrDefault(e);
+                ExceptionHelpers.ThrowConfiguredOrDefault(this.exceptionType, e);
                 throw;
             }
         }
@@ -148,64 +148,9 @@ namespace SimpleWait.Core
 
                 return true;
             }
-            catch (Exception ex) when (IsTimeoutOrConfiguredTimeoutException(ex))
+            catch (Exception ex) when (ExceptionHelpers.IsTimeoutOrConfiguredTimeoutException(ex, this.exceptionType))
             {
                 return false;
-            }
-        }
-
-        private bool IsTimeoutOrConfiguredTimeoutException(Exception ex)
-        {
-            if (ex is TimeoutException) return true;
-            if (this.exceptionType != DefaultException)
-            {
-                return this.exceptionType.IsAssignableFrom(ex.GetType());
-            }
-            return false;
-        }
-
-        private void ThrowConfiguredOrDefault(TimeoutException timeoutEx, string overrideMessage = null)
-        {
-            var message = overrideMessage ?? timeoutEx.Message;
-
-            if (this.exceptionType != DefaultException)
-            {
-                Exception created = null;
-
-                try
-                {
-                    created = (Exception)Activator.CreateInstance(this.exceptionType, message, timeoutEx);
-                }
-                catch { /* ignore and try other ctors */ }
-
-                if (created == null)
-                {
-                    try
-                    {
-                        created = (Exception)Activator.CreateInstance(this.exceptionType, message);
-                    }
-                    catch { }
-                }
-
-                if (created == null)
-                {
-                    try
-                    {
-                        created = (Exception)Activator.CreateInstance(this.exceptionType);
-                    }
-                    catch { }
-                }
-
-                if (created != null)
-                {
-                    throw created;
-                }
-
-                throw new InvalidOperationException($"Failed to create exception of type {this.exceptionType.FullName}", timeoutEx);
-            }
-            else
-            {
-                throw new TimeoutException(message, timeoutEx);
             }
         }
     }
