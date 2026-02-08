@@ -109,12 +109,34 @@ namespace SimpleWait.Core
         }
 
         /// <summary>
+        /// Evaluate the boolean <paramref name="condition"/> until it returns true or the timeout elapses,
+        /// supporting cancellation via <paramref name="token"/>.
+        /// </summary>
+        /// <param name="condition">Condition to evaluate repeatedly.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>True if the condition became true; false if timeout occurred.</returns>
+        public bool Success(Func<bool> condition, CancellationToken token)
+        {
+            try
+            {
+                this.Execute(condition, token);
+                return true;
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex) when (IsTimeoutOrConfiguredTimeoutException(ex))
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Execute the boolean <paramref name="condition"/> until it returns true or timeout.
         /// If a custom exception type was configured via <see cref="Throw{T}"/>, it will be thrown on timeout.
         /// </summary>
         /// <param name="condition">Condition delegate.</param>
-        /// <exception cref="TimeoutException">If timeout occurs and no custom exception configured.</exception>
-        /// <exception cref="Exception">Configured exception type if <see cref="Throw{T}"/> was used.</exception>
         public void Execute(Func<bool> condition)
         {
             bool Func(bool b) => condition();
@@ -122,9 +144,31 @@ namespace SimpleWait.Core
             {
                 _ = this.wait.Execute(Func);
             }
-            catch (TimeoutException e) when (this.exceptionType != DefaultException)
+            catch (TimeoutException e)
             {
-                throw (Exception)Activator.CreateInstance(this.exceptionType, e.Message);
+                ThrowConfiguredOrDefault(e);
+            }
+        }
+
+        /// <summary>
+        /// Execute the boolean <paramref name="condition"/> until it returns true or timeout, observing <paramref name="token"/>.
+        /// </summary>
+        /// <param name="condition">Condition delegate.</param>
+        /// <param name="token">Cancellation token to cancel wait.</param>
+        public void Execute(Func<bool> condition, CancellationToken token)
+        {
+            bool Func(bool b) => condition();
+            try
+            {
+                _ = this.wait.Execute(Func, token);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (TimeoutException e)
+            {
+                ThrowConfiguredOrDefault(e);
             }
         }
 
@@ -147,13 +191,9 @@ namespace SimpleWait.Core
                     return success(t);
                 });
             }
-            catch (TimeoutException e) when (this.exceptionType == DefaultException)
+            catch (TimeoutException e)
             {
-                throw (Exception)Activator.CreateInstance(this.exceptionType, $"{e.Message} | {message(t)}");
-            }
-            catch (Exception)
-            {
-                throw;
+                ThrowConfiguredOrDefault(e, $"{e.Message} | {message(t)}");
             }
         }
 
@@ -164,8 +204,6 @@ namespace SimpleWait.Core
         /// <typeparam name="TResult">Result type.</typeparam>
         /// <param name="condition">Condition delegate.</param>
         /// <returns>The successful result when condition returns non-null.</returns>
-        /// <exception cref="TimeoutException">If the timeout elapses and no custom exception configured.</exception>
-        /// <exception cref="Exception">Configured exception type if <see cref="Throw{T}"/> was used.</exception>
         public TResult Execute<TResult>(Func<TResult> condition)
         {
             TResult Func(bool b) => condition();
@@ -176,7 +214,7 @@ namespace SimpleWait.Core
             catch (TimeoutException e)
             {
                 ThrowConfiguredOrDefault(e);
-                throw;
+                throw; // kept for caller clarity; helper always throws
             }
         }
 
@@ -186,8 +224,6 @@ namespace SimpleWait.Core
         /// <typeparam name="TResult">Result type.</typeparam>
         /// <param name="condition">Async condition delegate that returns a task.</param>
         /// <returns>A task that resolves to the successful result.</returns>
-        /// <exception cref="TimeoutException">If the timeout elapses and no custom exception configured.</exception>
-        /// <exception cref="Exception">Configured exception type if <see cref="Throw{T}"/> was used.</exception>
         public async Task<TResult> ExecuteAsync<TResult>(Func<Task<TResult>> condition)
         {
             try
@@ -209,8 +245,6 @@ namespace SimpleWait.Core
         /// <param name="condition">Async condition delegate that returns a task.</param>
         /// <param name="token">Cancellation token to cancel the wait.</param>
         /// <returns>A task that resolves to the successful result.</returns>
-        /// <exception cref="OperationCanceledException">If <paramref name="token"/> is canceled.</exception>
-        /// <exception cref="TimeoutException">If the timeout elapses and no custom exception configured.</exception>
         public async Task<TResult> ExecuteAsync<TResult>(Func<Task<TResult>> condition, CancellationToken token)
         {
             try
