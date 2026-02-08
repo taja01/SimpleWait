@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SimpleWait.Core
@@ -119,6 +120,19 @@ namespace SimpleWait.Core
             try
             {
                 return await wait.ExecuteAsync(condition);
+            }
+            catch (TimeoutException e)
+            {
+                ThrowConfiguredOrDefault(e);
+                throw;
+            }
+        }
+
+        public async Task<TResult> ExecuteAsync<TResult>(Func<Task<TResult>> condition, CancellationToken token)
+        {
+            try
+            {
+                return await wait.ExecuteAsync(condition, token).ConfigureAwait(false);
             }
             catch (TimeoutException e)
             {
