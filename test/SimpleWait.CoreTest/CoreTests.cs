@@ -185,7 +185,7 @@ namespace SimpleWait.CoreTest
                 await policy.ExecuteAsync(async () =>
                 {
                     await Task.Yield();
-                    return (object?)null;
+                    return (object)null;
                 }, cts.Token).ConfigureAwait(false);
             });
         }

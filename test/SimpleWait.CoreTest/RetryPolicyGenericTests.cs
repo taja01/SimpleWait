@@ -80,7 +80,7 @@ namespace SimpleWait.CoreTest
 
             var ex = Assert.Throws<TestTimeoutException>(() =>
             {
-                policy.Execute(() => (object?)null);
+                policy.Execute(() => null);
             });
 
             Assert.That(ex, Is.Not.Null);
@@ -108,7 +108,7 @@ namespace SimpleWait.CoreTest
                 await policy.ExecuteAsync(async () =>
                 {
                     await Task.Yield();
-                    return (object?)null;
+                    return null;
                 }, cts.Token).ConfigureAwait(false);
             });
         }
